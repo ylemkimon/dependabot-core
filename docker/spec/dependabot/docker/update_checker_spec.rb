@@ -155,6 +155,19 @@ RSpec.describe Dependabot::Docker::UpdateChecker do
       end
     end
 
+    context "when the dependency has a weird suffix" do
+      let(:dependency_name) { "ruby" }
+      let(:version) { "1.0.5-rc-20200225145640" }
+      let(:tags_fixture_name) { "ruby_suffix.json" }
+      before do
+        tags_url = "https://registry.hub.docker.com/v2/library/ruby/tags/list"
+        stub_request(:get, tags_url).
+          and_return(status: 200, body: registry_tags)
+      end
+
+      it { is_expected.to eq("1.0.7-rc-20200330145708") }
+    end
+
     context "when versions at different specificities look equal" do
       let(:dependency_name) { "ruby" }
       let(:version) { "2.4.0-slim" }
