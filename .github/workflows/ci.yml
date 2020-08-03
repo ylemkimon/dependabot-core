@@ -4,12 +4,12 @@ on:
   - push
 
 jobs:
-  tests:
-    name: Tests
+  core:
+    name: Run tests and linting
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        suite:
+        ecosystem:
           - bundler
           - cargo
           - common
@@ -28,7 +28,6 @@ jobs:
           - omnibus
           - python
           - terraform
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -50,14 +49,14 @@ jobs:
             -f Dockerfile.ci \
             --cache-from "dependabot/dependabot-core:latest" \
             .
-      - name: Run ${{ matrix.suite }} rspec specs
+      - name: Run ${{ matrix.ecosystem }} rubocop linting
         run: |
-          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.suite }} && bundle exec rspec spec"
-      - name: Run ${{ matrix.suite }} rubocop linting
+          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.ecosystem }} && bundle exec rubocop . -c ../.rubocop.yml"
+      - name: Run ${{ matrix.ecosystem }} rspec specs
         run: |
-          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.suite }} && bundle exec rubocop . -c ../.rubocop.yml"
+          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.ecosystem }} && bundle exec rspec spec"
       - name: Run javascript tests
-        if: ${{ matrix.suite == "npm_and_yarn" }}
+        if: ${{ matrix.ecosystem == "npm_and_yarn" }}
         run: |
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn lint"
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn test"
