@@ -32,7 +32,7 @@ jobs:
             --cache-from "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Build dependabot-core-ci image
@@ -45,7 +45,7 @@ jobs:
             --cache-from "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
 
@@ -93,7 +93,7 @@ jobs:
             -t "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Build dependabot-core-ci image
@@ -105,7 +105,7 @@ jobs:
             --cache-from "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Run Rubocop linting
@@ -157,7 +157,7 @@ jobs:
             -t "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Build dependabot-core-ci image
@@ -169,7 +169,7 @@ jobs:
             --cache-from "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Run ${{ matrix.suite }} tests with rspec
@@ -199,7 +199,7 @@ jobs:
             -t "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Build dependabot-core-ci image
@@ -211,7 +211,7 @@ jobs:
             --cache-from "dependabot/dependabot-core:latest" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --platform linux/386,linux/amd64 \
             --output "type=image,push=false" \
             .
       - name: Run js linting
