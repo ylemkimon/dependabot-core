@@ -56,7 +56,7 @@ jobs:
         run: |
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.ecosystem }} && bundle exec rspec spec"
       - name: Run javascript tests
-        if: ${{ matrix.ecosystem == "npm_and_yarn" }}
+        if: ${{ matrix.ecosystem == 'npm_and_yarn' }}
         run: |
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn lint"
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn test"
