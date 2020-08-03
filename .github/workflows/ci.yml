@@ -4,71 +4,8 @@ on:
   - push
 
 jobs:
-  rubocop:
-    name: Rubocop
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        suite:
-          - bundler
-          - cargo
-          - common
-          - composer
-          - dep
-          - docker
-          - elm
-          - git_submodules
-          - github_actions
-          - go_modules
-          - gradle
-          - hex
-          - maven
-          - npm_and_yarn
-          - nuget
-          - omnibus
-          - python
-          - terraform
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v3
-      - name: Cache core Docker layers
-        uses: actions/cache@v2
-        id: cache-core
-        with:
-          path: /tmp/.buildx-core-cache
-          key: ${{ runner.os }}-buildx-core-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-core-
-      - name: Cache ci Docker layers
-        uses: actions/cache@v2
-        id: cache-ci
-        with:
-          path: /tmp/.buildx-ci-cache
-          key: ${{ runner.os }}-buildx-ci-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-ci-
-      - name: Build dependabot-core image
-        run: |
-          docker buildx build \
-            -t "dependabot/dependabot-core:latest" \
-            --cache-from "type=local,src=/tmp/.buildx-core-cache" \
-            .
-      - name: Build dependabot-core-ci image
-        run: |
-          rm .dockerignore
-          docker buildx build \
-            -t "dependabot/dependabot-core-ci:${{ github.sha }}" \
-            -f Dockerfile.ci \
-            --cache-from "type=local,src=/tmp/.buildx-ci-cache" \
-            .
-      - name: Run Rubocop linting
-        run: |
-          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.suite }} && bundle exec rubocop . -c ../.rubocop.yml"
-
-  rspec:
-    name: Rspec
+  ci:
+    name: ci
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -95,83 +32,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Pull Docker base image & warm Docker cache
+        run: |
+          docker pull "dependabot/dependabot-core:latest"
       - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v3
-      - name: Cache core Docker layers
-        uses: actions/cache@v2
-        id: cache-core
-        with:
-          path: /tmp/.buildx-core-cache
-          key: ${{ runner.os }}-buildx-core-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-core-
-      - name: Cache ci Docker layers
-        uses: actions/cache@v2
-        id: cache-ci
-        with:
-          path: /tmp/.buildx-ci-cache
-          key: ${{ runner.os }}-buildx-ci-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-ci-
+        uses: satackey/action-docker-layer-caching@v0.0.4
       - name: Build dependabot-core image
         run: |
-          docker buildx build \
+          docker build \
             -t "dependabot/dependabot-core:latest" \
-            --cache-from "type=local,src=/tmp/.buildx-core-cache" \
             .
       - name: Build dependabot-core-ci image
         run: |
           rm .dockerignore
-          docker buildx build \
+          docker build \
             -t "dependabot/dependabot-core-ci:${{ github.sha }}" \
             -f Dockerfile.ci \
-            --cache-from "type=local,src=/tmp/.buildx-ci-cache" \
+            --cache-from "dependabot/dependabot-core:latest" \
             .
-      - name: Run ${{ matrix.suite }} tests with rspec
+      - name: Run ${{ matrix.suite }} rspec specs
         run: |
           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.suite }} && bundle exec rspec spec"
-
-  npm-and-yarn-js:
-    name: npm and yarn js
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v3
-      - name: Cache core Docker layers
-        uses: actions/cache@v2
-        id: cache-core
-        with:
-          path: /tmp/.buildx-core-cache
-          key: ${{ runner.os }}-buildx-core-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-core-
-      - name: Cache ci Docker layers
-        uses: actions/cache@v2
-        id: cache-ci
-        with:
-          path: /tmp/.buildx-ci-cache
-          key: ${{ runner.os }}-buildx-ci-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-ci-
-      - name: Build dependabot-core image
+      - name: Run ${{ matrix.suite }} rubocop linting
         run: |
-          docker buildx build \
-            -t "dependabot/dependabot-core:latest" \
-            --cache-from "type=local,src=/tmp/.buildx-core-cache" \
-            .
-      - name: Build dependabot-core-ci image
+          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /home/dependabot/dependabot-core/${{ matrix.suite }} && bundle exec rubocop . -c ../.rubocop.yml"
+      - name: Run javascript tests
+        if: ${{ matrix.suite == "npm_and_yarn" }}
         run: |
-          rm .dockerignore
-          docker buildx build \
-            -t "dependabot/dependabot-core-ci:${{ github.sha }}" \
-            -f Dockerfile.ci \
-            --cache-from "type=local,src=/tmp/.buildx-ci-cache" \
-            .
-      - name: Run js linting
-        run: |
-           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn lint"
-      - name: Run js tests
-        run: |
-           docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn test"
+          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn lint"
+          docker run --rm dependabot/dependabot-core-ci:${{ github.sha }} bash -c "cd /opt/npm_and_yarn && yarn test"
