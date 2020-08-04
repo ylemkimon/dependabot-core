@@ -5,7 +5,7 @@ on:
 
 jobs:
   core:
-    name: Run tests and linting
+    name: CI
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,10 +31,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Pull Docker base image & warm Docker cache
+      - name: Pull Docker base image
         run: |
           docker pull "dependabot/dependabot-core:latest"
-      - name: Set up Docker Buildx
+      - name: Set up Docker layer caching
         uses: satackey/action-docker-layer-caching@v0.0.4
       - name: Build dependabot-core image
         run: |
